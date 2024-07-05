@@ -7,10 +7,9 @@ The current repository contains the source code for generating the ranking of dr
 
 The code has been tested with Python 3.9 on macOS 14.5 and includes libraries such as torch, torch_geometric, numpy, networkx, scikit-learn, among others.
 
-### Install Requirements (typically takes a few minutes)
-
 pip install -r requirements.txt 
 
+It typically takes a few minutes.
 
 ## Running
 

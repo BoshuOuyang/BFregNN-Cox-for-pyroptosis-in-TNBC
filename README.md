@@ -12,7 +12,7 @@ The code has been tested with Python 3.9 on macOS 14.5 and includes libraries su
 pip install -r requirements.txt 
 
 
-## Parameters
+## Running
 
 cd code/
 
@@ -20,11 +20,13 @@ python main.py --score 0.6 --drug1 XXX --drug2 XXX
 
 You need to provide the edge threshold for the protein-protein interaction network, as well as the names of the two drugs you'd like to analyze.
 
+For one drug combination, it takes a few seconds to converage and obtain the result.
+
 Please note that we use torch without cuda to obtain the results. Meanwhile, the code is also compatible with the CUDA version. Users who wish to utilize CUDA should adjust the optimizer and training epochs to ensure the results converge properly.
 
 
 
-## Tutorial on New drug combinations
+## Tutorial on New Drug Combinations
 
 To utilize the code for new drug combinations, it is essential to prepare the following files beforehand:
 

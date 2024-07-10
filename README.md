@@ -11,18 +11,28 @@ pip install -r requirements.txt
 
 It typically takes a few minutes.
 
+You also need to download some large files and put them in data folder:
+
+Gene expression profiling of patients:
+https://www.dropbox.com/scl/fi/p9kb71hk2zskgt9r4somm/tnbc2022_448s_gene_tpm_matrix.csv?rlkey=20cm2gqm95fp8p94ayvl2xf9i&st=gwodwzgi&dl=0
+
+PPI networks:
+https://www.dropbox.com/scl/fi/x2rzpu21gz1d2ao8puyfh/9606.protein.info.v11.5.txt?rlkey=zdf1fflv7l87oamdp9lddaq1k&st=yenupldn&dl=0
+
+https://www.dropbox.com/scl/fi/4l96h51vob8j81qzb4wyb/9606.protein.links.full.v11.5.txt?rlkey=w602rcdj3zhq3bcblhirv8jdu&st=c2xh22p3&dl=0
+
 ## Running
 
 cd code/
 
-python main.py --score 0.6 --drug1 XXX --drug2 XXX
+python main.py --score 0.6 --drug1 XXX --drug2 XXX --epochs 200
 
 You need to provide the edge threshold for the protein-protein interaction network, as well as the names of the two drugs you'd like to analyze.
 
 For one drug combination, it takes a few seconds to converage and obtain the result.
 
-Please note that we use torch without cuda to obtain the results. Meanwhile, the code is also compatible with the CUDA version. Users who wish to utilize CUDA should adjust the optimizer and training epochs to ensure the results converge properly.
-
+Please note that the code is also compatible with the CUDA version. 
+Users can set different training epochs and learning rates to see the rankings of drug combinations 
 
 
 ## Tutorial on New Drug Combinations
@@ -34,7 +44,6 @@ To utilize the code for new drug combinations, it is essential to prepare the fo
 2. focused_gene.txt: This file lists the gene name related to the certain mechnisim of a disease, such as pyroptosis therapy in Triple-Negative Breast Cancer.
 
 3. patient_info: These files require both the Overall Survival (OS) / Recurrence-Free Survival (RFS) data and the gene expression profiles for each patient. If the format is different, please moditify the function read_patient_info() in train.py.
-
 
 
 If you have any questions, please contact Caihua Shan caihuashan@microsoft.com

@@ -8,19 +8,19 @@ from module import IntraLayer, InterLayer
 
 
 class BFRegNN(nn.Module):
-    def __init__(self, in_dim, in_dim2, n_hid, basic_layer, transfer_layer, second_layer, device):
+    def __init__(self, in_dim, in_dim2, n_hid, basic_layer, transfer_layer, second_layer):
         super().__init__()
 
         self.graph1 = basic_layer.to_dense()
-        self.basic_graph = IntraLayer(in_dim, 1, 4, 4, "cat", device)
+        self.basic_graph = IntraLayer(in_dim, 1, 4, 4, "cat", "GCN")
 
         self.transfer_graph = transfer_layer.to_dense()
-        self.inter_layer = InterLayer(in_dim, in_dim2, device)
+        self.inter_layer = InterLayer(in_dim, in_dim2)
 
         self.graph2 = second_layer.to_dense()
-        self.second_graph = IntraLayer(in_dim2, 4, 4, 4, "cat", device)
+        self.second_graph = IntraLayer(in_dim2, 4, 4, 4, "cat", "GCN")
 
-        self.cox_aff = cox_affine(in_dim2, device)
+        self.cox_aff = cox_affine(in_dim2)
 
 
     def forward(self, x):
@@ -35,10 +35,10 @@ class BFRegNN(nn.Module):
     
         
 class BFRegNN_COX(nn.Module):
-    def __init__(self, in_dim, in_dim2, n_hid, graphs1, transfer_layer, second_layer, device, cox_weights_list):
+    def __init__(self, in_dim, in_dim2, n_hid, graphs1, transfer_layer, second_layer, cox_weights_list):
         super().__init__() 
-        self.bfregNN = BFRegNN(in_dim, in_dim2, n_hid, graphs1, transfer_layer, second_layer, device)
-        self.neg_module = cox_module(in_dim2, cox_weights_list, device)
+        self.bfregNN = BFRegNN(in_dim, in_dim2, n_hid, graphs1, transfer_layer, second_layer)
+        self.neg_module = cox_module(in_dim2, cox_weights_list)
 
     def forward(self, x, event, time):
         x = self.bfregNN(x)
@@ -49,7 +49,7 @@ class BFRegNN_COX(nn.Module):
 
 
 class cox_affine(nn.Module):
-    def __init__(self, in_dim2, device):
+    def __init__(self, in_dim2):
         super().__init__()
         self.gene_num = in_dim2
         self.aff = nn.Linear(4,1)
@@ -62,14 +62,12 @@ class cox_affine(nn.Module):
         return x
         
         
-        
 class cox_module(nn.Module):
-    def __init__(self, in_dim2, cox_weights_list, device):
+    def __init__(self, in_dim2, cox_weights_list):
         super().__init__()
         self.gene_num = in_dim2
-        self.device = device
 
-        self.W = torch.tensor(cox_weights_list, requires_grad=False).float().to(device)
+        self.W = torch.tensor(cox_weights_list, requires_grad=False).float()
     
     def forward(self, x, event, time, alpha=0, beta=0):
         
@@ -80,7 +78,7 @@ class cox_module(nn.Module):
         my_time = time[o]
 
         loss = 0
-        xw = torch.matmul(x, self.W)
+        xw = torch.matmul(x, self.W.to(x.device))
         loss, risksets, diff, pred = self.neg_par_log_likelihood(xw, my_time, my_event)
         loss = loss.mean()
         self.concordance = self.c_index(xw, my_time, my_event)
@@ -88,10 +86,10 @@ class cox_module(nn.Module):
 
     def neg_par_log_likelihood(self,pred, ytime, yevent):
 
-        n_observed = yevent.sum(0)+1e-6
+        n_observed = yevent.sum(0) + 1e-6
         ytime_indicator = self.R_set(ytime)
         
-        risk_set_sum = ytime_indicator.mm(torch.exp(pred))  # hazard ratio
+        risk_set_sum = ytime_indicator.mm(torch.exp(pred))  
         diff = pred - torch.log(risk_set_sum)
 
         yevent = yevent.unsqueeze(-1)
@@ -99,14 +97,14 @@ class cox_module(nn.Module):
         cost = ( -(sum_diff_in_observed / n_observed)).reshape((-1,))
         return(cost,risk_set_sum,diff,pred)
     
-    def c_index(self,pred, ytime, yevent):
+    def c_index(self, pred, ytime, yevent):
 
         n_sample = len(ytime)
         ytime_indicator = self.R_set(ytime)
         ytime_matrix = ytime_indicator - torch.diag(torch.diag(ytime_indicator))
         
         censor_idx = (yevent == 0).nonzero()
-        zeros = torch.zeros(n_sample).to(self.device)
+        zeros = torch.zeros(n_sample).to(ytime_matrix.device)
         ytime_matrix[censor_idx, :] = zeros
 
         pred_matrix = torch.zeros_like(ytime_matrix)
@@ -126,8 +124,8 @@ class cox_module(nn.Module):
     def R_set(self,x):
 
         n_sample = x.shape[0]
-        matrix_ones = torch.ones(n_sample, n_sample).to(self.device)  
-        indicator_matrix = torch.tril(matrix_ones).to(self.device)  
+        matrix_ones = torch.ones(n_sample, n_sample).to(x.device)  
+        indicator_matrix = torch.tril(matrix_ones).to(x.device)  
 
         return(indicator_matrix)
 

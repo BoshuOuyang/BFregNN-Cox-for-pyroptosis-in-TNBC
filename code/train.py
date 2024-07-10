@@ -132,19 +132,18 @@ def build_bfregNN_model(gene_num, gene_num2, gene_adj, gene_adj2, transfer_layer
     v3 = torch.ones(transfer_layer.shape[1], device=device) 
     transfer_layer = torch.sparse_coo_tensor(transfer_layer, v3, size=(gene_num,gene_num2)).to_dense()
     
-    model = BFRegNN_COX(gene_num, gene_num2, 64, ori_gene, transfer_layer, ori_gene2, device, cox_weights_list).to(device)    
+    model = BFRegNN_COX(gene_num, gene_num2, 64, ori_gene, transfer_layer, ori_gene2, cox_weights_list).to(device)    
 
     return model
 
 
-def train_model(model, optimizer, train_data, device):
-    epoch = 500
-    patience = 40
+def train_model(model, train_data, optimizer, args, device):
+    patience = 500
     patience_count = 0
     global_loss = 0
     global_con = 0
 
-    for e in range(epoch):
+    for e in range(args.epochs):
         train_loss = 0
         concordance = 0
         for d in train_data:

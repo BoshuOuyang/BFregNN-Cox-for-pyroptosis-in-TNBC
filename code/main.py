@@ -13,7 +13,7 @@ def parse():
     parser.add_argument('--score', type=float, default=0.6, help='Edge threshold for ppi network')
     parser.add_argument('--drug1', type=str, default="mitoxantrone", help='First drug')
     parser.add_argument('--drug2', type=str, default="gambogic acid", help='Second drug')
-    parser.add_argument('--epochs', type=int, default=1000, help='Number of training epochs')
+    parser.add_argument('--epochs', type=int, default=200, help='Number of training epochs')
     parser.add_argument('--batch_size', type=int, default=128, help='Batch size for training')
     parser.add_argument('--learning_rate', type=float, default=1e-1, help='Learning rate')
     parser.add_argument('--weight_decay', type=float, default=1e-4, help='Weight decay')
@@ -63,6 +63,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = build_bfregNN_model(X.shape[1], cox_weights_list.shape[0], basic_layer_adj, second_layer_adj, transfer_layer, device, cox_weights_list)
 optimizer = optim.Adam(model.parameters(), lr = args.learning_rate, weight_decay = args.weight_decay)
 loss, con_loss = train_model(model, train_data, optimizer, args, device)
+
+print(args.drug1, args.drug2, con_loss)
 
 with open('drug_combi_result.txt','a') as f:
     f.write(args.drug1 + '\t' + args.drug2 + '\t' + str(args.score) + '\t' + str(loss) + '\t' + str(con_loss) + '\n')

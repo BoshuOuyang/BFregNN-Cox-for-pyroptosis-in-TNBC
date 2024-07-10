@@ -25,14 +25,13 @@ https://www.dropbox.com/scl/fi/4l96h51vob8j81qzb4wyb/9606.protein.links.full.v11
 
 cd code/
 
-python main.py --score 0.6 --drug1 XXX --drug2 XXX --epochs 200
+python main.py --drug1 XXX --drug2 XXX
 
-You need to provide the edge threshold for the protein-protein interaction network, as well as the names of the two drugs you'd like to analyze.
+You can provide the edge threshold for the protein-protein interaction network (--score 0.6), the names of the two drugs you'd like to analyze (--drug1 XXX --drug2 XXX), the different training epochs ([200,1000]) and so on. 
 
 For one drug combination, it takes a few seconds to converage and obtain the result.
 
 Please note that the code is also compatible with the CUDA version. 
-Users can set different training epochs and learning rates to see the rankings of drug combinations 
 
 
 ## Tutorial on New Drug Combinations

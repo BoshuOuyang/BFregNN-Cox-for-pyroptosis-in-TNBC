@@ -29,7 +29,9 @@ python main.py --drug1 XXX --drug2 XXX
 
 You can provide the edge threshold for the protein-protein interaction network (--score 0.6), the names of the two drugs you'd like to analyze (--drug1 XXX --drug2 XXX), the different training epochs ([200,1000]) and so on. 
 
-For one drug combination, it takes a few seconds to converage and obtain the result.
+For one drug combination, it takes a few seconds to compute and obtain the result.
+
+If you want to compute all pairs of drug combinations, please use run.sh
 
 Please note that the code is also compatible with the CUDA version. 
 
